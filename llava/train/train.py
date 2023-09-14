@@ -642,7 +642,7 @@ class LazySupervisedDataset(Dataset):
         if isinstance(i, int):
             sources = [sources]
         assert len(sources) == 1, "Don't know why it is wrapped to a list"  # FIXME
-        if '<image>' in sources[0]:
+        if 'image' in sources[0]:
             image_file = self.list_data_dict[i]['image']
             image_folder = self.data_args.image_folder
             processor = self.data_args.image_processor
@@ -672,13 +672,13 @@ class LazySupervisedDataset(Dataset):
         data_dict = preprocess(
             sources,
             self.tokenizer,
-            has_image=('<image>' in self.list_data_dict[i]))
+            has_image=('image' in self.list_data_dict[i]))
         if isinstance(i, int):
             data_dict = dict(input_ids=data_dict["input_ids"][0],
                              labels=data_dict["labels"][0])
 
         # image exist in the data
-        if '<image>' in self.list_data_dict[i]:
+        if 'image' in self.list_data_dict[i]:
             data_dict['image'] = image
         elif self.data_args.is_multimodal:
             # image does not exist in the data, but the model is multimodal

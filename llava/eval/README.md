@@ -5,7 +5,7 @@ For NLP ability evaluations except MMLU, we directly employ the  benchmark toolb
 For finetuned MLLMs:
 
 ```bash
-export ft_model_path=finetuning-repo-id-hf
+export ft_model_path=PahaII/MM-LLaMA-2-7B-ft
 cd ../../eval_scripts
 bash eval_nlp.sh /your/path/to/lm-evaluation-harness ft_model_path
 ```
@@ -22,9 +22,9 @@ bash eval_nlp.sh /your/path/to/lm-evaluation-harness base_model_path lora_model
 For MMLU evaluation, first download data [here](https://people.eecs.berkeley.edu/~hendrycks/data.tar). Then evaluate the model:
 
 ```bash
-export ft_model_path=finetuning-repo-id-hf
-export base_model_path=meta-llama/llama-2-7b-chat-hf
-export lora_model=lora-repo-id-hf
+export ft_model_path=PahaII/MM-LLaMA-2-7B-ft
+export base_model_path=meta-llama/llama-2-7b-hf
+export lora_model=PahaII/MM-LLaMA-2-7B-lora
 
 cd ../../eval_scripts
 ## For finetuned MLLMs
@@ -39,9 +39,9 @@ bash eval_mmlu.sh /path/to/mmlu_data base_model_path lora_model
 This directory contains end-to-end pipelines for evaluations on seven multi-modal benchmarks (including two tasks with corrupted images) of our trained MLLMs. We will introduce the evaluation pipeline and the data downloading guides in this document. First, define the model:
 
 ```bash
-export ft_model_path=finetuning-repo-id-hf
-export base_model_path=meta-llama/llama-2-7b-chat-hf
-export lora_model=lora-repo-id-hf
+export ft_model_path=PahaII/MM-LLaMA-2-7B-ft
+export base_model_path=meta-llama/llama-2-7b-hf
+export lora_model=PahaII/MM-LLaMA-2-7B-lora
 cd ../../eval_scripts
 ```
 
