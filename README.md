@@ -45,7 +45,7 @@ For NLP & Multi-Modal data and evaluations, please see instructions [here](./lla
 If you find this repo useful for your your research and applications, please cite using this BibTeX:
 ```bibtex
 @article{zhao2023sight,
-  title={Sight Beyond Text: Open the Eyes of LLMs Unlocks Emerging Benefits in Truthfulness and Ethics},
+  title={Sight Beyond Text: Multi-Modal Training Enhances LLMs in Truthfulness and Ethics},
   author={Tu, Haoqin and Zhao, Bingchen and Wei, Chen and Xie, Cihang},
   journal={arXiv preprint arXiv:2309.07120},
   year={2023}
