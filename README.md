@@ -9,6 +9,11 @@
 [![Code License](https://img.shields.io/badge/Code%20License-Apache_2.0-green.svg)](https://github.com/tatsu-lab/stanford_alpaca/blob/main/LICENSE)
 [![Data License](https://img.shields.io/badge/Data%20License-CC%20By%20NC%204.0-red.svg)](https://github.com/tatsu-lab/stanford_alpaca/blob/main/DATA_LICENSE)
 
+
+<p align="center">
+  <img src="teaser.png" width="1080">
+</p>
+
 ## Train on Text-only Instructions
 
 To train the model on text-only instruction data, first you need to re-organize the data by removing all `<image>` placeholders in the data:
@@ -42,7 +47,7 @@ If you find this repo useful for your your research and applications, please cit
 @article{zhao2023sight,
   title={Sight Beyond Text: Open the Eyes of LLMs Unlocks Emerging Benefits in Truthfulness and Ethics},
   author={Tu, Haoqin and Zhao, Bingchen and Wei, Chen and Xie, Cihang},
-  journal={arXiv preprint arXiv:2308.xxxxx},
+  journal={arXiv preprint arXiv:2309.07120},
   year={2023}
 }
 ```
@@ -51,9 +56,7 @@ If you find this repo useful for your your research and applications, please cit
 
 This work is partially supported by a gift from Open Philanthropy. We thank Center for AI Safety for supporting our computing needs. Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the sponsors.
 
-## Related Projects
 
-TODO
 
 
 
