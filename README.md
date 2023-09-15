@@ -42,17 +42,17 @@ For NLP & Multi-Modal data and evaluations, please see instructions [here](./lla
 
 ## Model Training
 
-We follow the training paradigm of LLaVA, which consists of two stages: (1) feature alignment: use approximately 600K filtered CC3M to connect a frozen pretrained vision encoder to a frozen LLM; (2) visual instruction tuning: use filtered 88K GPT-generated multimodal instruction-following to teach the model to follow multimodal instructions.
+We follow the training paradigm of LLaVA, which consists of two stages: (1) feature alignment: use approximately 600K filtered CC3M to connect a frozen pretrained vision encoder to a frozen LLM; (2) visual instruction tuning: use filtered 80K GPT-generated visual instruction data (see [here](https://github.com/haotian-liu/LLaVA#lightning)) to teach the model to follow multimodal instructions.
 
 ### Feature Alignment Training
 
-Please download the subset of the CC3M dataset we use in the paper [here](https://huggingface.co/datasets/liuhaotian/LLaVA-CC3M-Pretrain-595K). You can check the pretraining script [here](./scripts/pretrain.sh)
+Please download the subset of the CC3M dataset we use in the paper [here](https://huggingface.co/datasets/liuhaotian/LLaVA-CC3M-Pretrain-595K). You can check the [pretraining script](./train_scripts/pretrain-7b.sh)
 
 <details>
 <summary>Pretrain: LLaMA2-7B.</summary>
 
 ```Shell
-python llava/train/train_mem.py \
+deepspeed llava/train/train.py --deepspeed scripts/zero3.json \
     --model_name_or_path meta-llama/Llama-2-7b-hf \
     --version v0 \
     --data_path /path/to/cc3m_595k.json \
@@ -60,6 +60,7 @@ python llava/train/train_mem.py \
     --vision_tower openai/clip-vit-large-patch14 \
     --tune_mm_mlp_adapter True \
     --mm_vision_select_layer -2 \
+    --mm_use_im_start_end True \
     --bf16 True \
     --output_dir ./checkpoints/MM-LLaMA2-7B-pretrain \
     --num_train_epochs 1 \
@@ -86,9 +87,49 @@ python llava/train/train_mem.py \
 ### Visual Instruction Tuning
 
 1. Data preparation: Please download [llava_instruct_80k.json](https://huggingface.co/datasets/liuhaotian/LLaVA-Instruct-150K/blob/main/llava_instruct_80k.json) and COCO train2017 images [here](https://cocodataset.org/#download)
-2. Training: You can download our pretrained projector [here](#model-weights), and check the [finetuning script](./scripts/finetune.sh) or [LoRA tuning script](./scripts/finetune_lora.sh).
+2. Training: You can download our pretrained projector [here](#model-weights), and check the [finetuning script](./train_scripts/finetune-7b.sh) or [LoRA tuning script](./train_scripts/lora-lm-7b.sh).
 
-**Usage and License Notices**: The data, code and checkpoint is intended and licensed for research use only. They are also restricted to uses that follow the license agreement of LLaMA, Vicuna and GPT-4. The dataset is CC BY NC 4.0 (allowing only non-commercial use) and models trained using the dataset should not be used outside of research purposes.
+<details>
+<summary>Visual Instruction Tuning: MM-LLaMA2-7B-ft.</summary>
+
+```Shell
+deepspeed llava/train/train.py --deepspeed scripts/zero2.json \
+    --model_name_or_path meta-llama/Llama-2-7b-hf \
+    --version llava_llama_2 \
+    --data_path path/to/llava_instruct_80k.json \
+    --image_folder /path/to/coco/train2017/ \
+    --vision_tower openai/clip-vit-large-patch14 \
+    --pretrain_mm_mlp_adapter ./checkpoints/MM-LLaMA2-7B-pretrain/mm_projector.bin \
+    --mm_vision_select_layer -2 \
+    --mm_use_im_start_end True \
+    --bf16 True \
+    --output_dir ./checkpoints/MM-LLaMA2-7B-ft \
+    --num_train_epochs 1 \
+    --per_device_train_batch_size 4 \
+    --per_device_eval_batch_size 4 \
+    --gradient_accumulation_steps 2 \
+    --evaluation_strategy "no" \
+    --save_strategy "steps" \
+    --save_steps 5000 \
+    --save_total_limit 1 \
+    --learning_rate 2e-5 \
+    --weight_decay 0. \
+    --warmup_ratio 0.03 \
+    --lr_scheduler_type "cosine" \
+    --logging_steps 1 \
+    --tf32 True \
+    --model_max_length 2048 \
+    --gradient_checkpointing True \
+    --dataloader_num_workers 4 \
+    --lazy_preprocess True \
+    --report_to wandb
+```
+</details>
+
+
+## Usage and License Notices
+
+The data, code and checkpoint is intended and licensed for research use only. They are also restricted to uses that follow the license agreement of LLaMA, Vicuna and GPT-4. The dataset is CC BY NC 4.0 (allowing only non-commercial use) and models trained using the dataset should not be used outside of research purposes.
 
 
 
@@ -109,7 +150,7 @@ If you find this repo useful for your your research and applications, please cit
 This work is partially supported by a gift from Open Philanthropy. We thank Center for AI Safety for supporting our computing needs. Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the sponsors.
 
 ## Related Projects
-- Our training codes are largely from [LLaVA](https://github.com/haotian-liu/LLaVA), which is truly an amazing resource.
+- Our training codes are largely borrow from [LLaVA](https://github.com/haotian-liu/LLaVA), which is truly an amazing resource.
 
 
 

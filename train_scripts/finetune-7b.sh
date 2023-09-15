@@ -1,16 +1,29 @@
-torchrun --nnodes=1 --nproc_per_node=4 --master_port=25001 \
-    llava/train/train.py \
-    --model_name_or_path /data/bingchen_zhao/llama-2/models_hf/7B/ \
-    --version v0 \
-    --data_path /data/bingchen_zhao/data/LLaVA-Instruct-150K/llava_instruct_150k.json \
-    --image_folder /data/bingchen_zhao/data/coco/train2017/ \
+#!/bin/bash
+
+# Uncomment and set the following variables correspondingly to run this script:
+
+################## VICUNA ##################
+# PROMPT_VERSION=v1
+# MODEL_VERSION="vicuna-v1-3-7b"
+################## VICUNA ##################
+
+################## LLaMA-2 ##################
+# PROMPT_VERSION="llava_llama_2"
+# MODEL_VERSION="llama-2-7b-chat"
+################## LLaMA-2 ##################
+
+deepspeed llava/train/train.py --deepspeed scripts/zero2.json \
+    --model_name_or_path ./checkpoints/$MODEL_VERSION \
+    --version $PROMPT_VERSION \
+    --data_path path/to/llava_instruct_80k.json \
+    --image_folder /path/to/coco/train2017/ \
     --vision_tower openai/clip-vit-large-patch14 \
-    --pretrain_mm_mlp_adapter /data/bingchen_zhao/weights/llava/llava-llama-2-7b-pretrain/mm_projector.bin \
+    --pretrain_mm_mlp_adapter ./checkpoints/llava-$MODEL_VERSION-pretrain/mm_projector.bin \
     --mm_vision_select_layer -2 \
     --mm_use_im_start_end True \
     --bf16 True \
-    --output_dir /data/bingchen_zhao/weights/llava/llava-llama-2-7b-finetune/ \
-    --num_train_epochs 3 \
+    --output_dir ./checkpoints/llava-$MODEL_VERSION-finetune \
+    --num_train_epochs 1 \
     --per_device_train_batch_size 4 \
     --per_device_eval_batch_size 4 \
     --gradient_accumulation_steps 2 \
@@ -24,8 +37,6 @@ torchrun --nnodes=1 --nproc_per_node=4 --master_port=25001 \
     --lr_scheduler_type "cosine" \
     --logging_steps 1 \
     --tf32 True \
-    --fsdp "full_shard auto_wrap" \
-    --fsdp_transformer_layer_cls_to_wrap 'LlamaDecoderLayer' \
     --model_max_length 2048 \
     --gradient_checkpointing True \
     --dataloader_num_workers 4 \

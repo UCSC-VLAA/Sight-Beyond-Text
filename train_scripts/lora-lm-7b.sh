@@ -1,35 +1,36 @@
-#!/usr/bin/env bash
-#SBATCH --job-name=lora-lama
-#SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
-#SBATCH --partition=compute
-#SBATCH --gres=gpu:4
-#SBATCH --time=2-00:00:00
-#SBATCH --cpus-per-gpu=16
-#SBATCH --output=textllamalora.txt
+#!/bin/bash
 
-source /data/haoqin_tu/.bashrc
-conda activate llava
-cd /data/haoqin_tu/codes/Sight-Beyond-Text
+# Uncomment and set the following variables correspondingly to run this script:
 
-deepspeed --master_port 61329 llava/train/train.py --deepspeed scripts/zero2.json \
-    --model_name_or_path meta-llama/Llama-2-7b-hf \
+################## VICUNA ##################
+# PROMPT_VERSION=v1
+# MODEL_VERSION="vicuna-v1-3-7b"
+################## VICUNA ##################
+
+################## LLaMA-2 ##################
+# PROMPT_VERSION="llava_llama_2"
+# MODEL_VERSION="llama-2-7b-chat"
+################## LLaMA-2 ##################
+
+deepspeed llava/train/train.py --deepspeed scripts/zero2.json \
+    --model_name_or_path ./checkpoints/$MODEL_VERSION \
     --lora_enable True \
-    --cache_dir /data/haoqin_tu/.cache/torch/transformers \
-    --version llama_2 \
-    --data_path /data/haoqin_tu/datasets/llava-instruct-data/llava_text_instruct_80k.json \
-    --image_folder /data/haoqin_tu/datasets/mscoco/train2017/ \
+    --version $PROMPT_VERSION \
+    --data_path path/to/llava_instruct_80k.json \
+    --image_folder /path/to/coco/train2017/ \
+    --vision_tower openai/clip-vit-large-patch14 \
+    --pretrain_mm_mlp_adapter ./checkpoints/llava-$MODEL_VERSION-pretrain/mm_projector.bin \
     --mm_vision_select_layer -2 \
     --mm_use_im_start_end True \
     --bf16 True \
-    --output_dir /data/haoqin_tu/weights/llava/llama-2-7b-lora/ \
+    --output_dir ./checkpoints/llava-$MODEL_VERSION-lora \
     --num_train_epochs 1 \
     --per_device_train_batch_size 4 \
     --per_device_eval_batch_size 4 \
     --gradient_accumulation_steps 2 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 500 \
+    --save_steps 5000 \
     --save_total_limit 1 \
     --learning_rate 2e-5 \
     --weight_decay 0. \
@@ -41,4 +42,4 @@ deepspeed --master_port 61329 llava/train/train.py --deepspeed scripts/zero2.jso
     --gradient_checkpointing True \
     --dataloader_num_workers 4 \
     --lazy_preprocess True \
-    --report_to none
+    --report_to wandb
